@@ -68,11 +68,22 @@ function setup() {
 
 function randomBoolean() { return random() < 0.5; }
 
+function getControl(string) {
+  return controlsSchema.find(c => c.name === string);
+}
+
+function getControlValue(control) {
+  if (typeof control === 'string') {
+    control = getControl(control)
+  }
+  return control?.$el?.value() ?? 0;
+}
+
 function drawVisualizer() {
   vol = amp.getLevel() * width;
-  interRingDistance = controlsSchema.find(c => c.name === 'sparseness')?.$el?.value() ?? 0
-  ringCulture = controlsSchema.find(c => c.name === 'culture')?.$el?.value() / 10 ?? 0
-  ringThickness = controlsSchema.find(c => c.name === 'thickness')?.$el?.value() ?? 0
+  interRingDistance = getControlValue('sparseness')
+  ringCulture = getControlValue('culture') / 4
+  ringThickness = getControlValue('thickness')
 
   /***********/
   /* CULTURE */
@@ -88,9 +99,9 @@ function drawVisualizer() {
 
     noFill();
     strokeWeight(DEFAULT_STROKE + ringThickness);
-    rect(
-      width / 2,
-      height / 2,
+    ellipse(
+      width / 2 + widthMod,
+      height / 2 + heightMod,
       i + interRingDistance / 2,
       i + interRingDistance / 2,
     )
@@ -170,7 +181,11 @@ function mouseClicked() {
 }
 
 function draw() {
-  background(220);
+  const control = getControl('culture');
+  const [controlMin, controlMax] = control?.init;
+  const translucency = 0.8 - map(getControlValue(control), controlMin, controlMax, 0, .3);
+
+  background(`rgba(220,220,220,${translucency})`);
   drawVisualizer();
   drawControls();
 }
