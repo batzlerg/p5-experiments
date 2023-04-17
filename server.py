@@ -1,7 +1,8 @@
 import os
+import atexit
 
 # get current directory
-current_dir = os.getcwd()
+current_dir = os.path.join(os.getcwd(), 'src')
 
 # create HTML for directory listing
 html = "<html><head><title>P5 Experiments</title>"
@@ -22,7 +23,7 @@ for subdir in os.listdir(current_dir):
     index_file = os.path.join(current_dir, subdir, "index.html")
     if os.path.isfile(index_file):
       # add link to index.html file in subdir
-      html += "<a href=\"{}\"><li>{}</li></a>".format(os.path.join(subdir, "index.html"), subdir)
+      html += "<a href=\"{}\"><li>{}</li></a>".format(os.path.join("src", subdir, "index.html"), subdir)
 
 # close HTML tags
 html += "</ul></body></html>"
@@ -30,6 +31,14 @@ html += "</ul></body></html>"
 # write HTML to file
 with open("index.html", "w") as f:
   f.write(html)
+
+# delete index.html file on exit
+@atexit.register
+def delete_index():
+    try:
+        os.remove("index.html")
+    except FileNotFoundError:
+        pass
 
 # start Python3 simple server
 os.system("python3 -m http.server")
