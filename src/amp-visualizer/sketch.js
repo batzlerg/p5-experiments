@@ -1,3 +1,6 @@
+const CANVAS_WIDTH = 400
+const CANVAS_HEIGHT = 400
+const PARENT_EL_ID = 'canvas';
 const DEFAULT_STROKE = 1;
 const DEFAULT_FILL = 50;
 const CONTROL_SPACING = 25;
@@ -5,89 +8,169 @@ const controlsSchema = [
   {
     name: 'sparseness',
     init: [5, 100, 50, 1],
+    $el: null,
   },
   {
     name: 'culture',
     init: [1, 100, 5, 1],
+    $el: null,
   },
   {
     name: 'thickness',
-    init: [0.1, 10, 1, .1]
+    init: [0.1, 10, 1, .1],
+    $el: null,
   }
 ]
+const CONTROLS_POS_Y = 20;
+const CONTROLS_POS_X = 20;
+const CONTROLS_LABEL = '⚙'
+const CONTROLS_CLOSE_LABEL = 'X';
+const TEXT_SIZE = 16;
+const TEXT_LABEL_PADDING = 5;
 
 let amp
 let vol
 let sound
-let controls = {}
 let rand1 = 0
 let rand2 = 0
+let isControlPanelOpen = false
 function preload() {
-  sound = loadSound('./assets/vocal.wav')
+  sound = loadSound('./assets/dnb.wav')
 }
 
 function setup() {
-  canvas = createCanvas(400, 400);
-  amp = new p5.Amplitude()
-  volCoeff = width;
+  const canvas = createCanvas(400, 400);
+  canvas.parent(PARENT_EL_ID);
+  rectMode(CENTER);
+  textSize(TEXT_SIZE);
 
-  // Attach the mousePressed() event listener to the canvas
-  canvas.mousePressed(playSound);
+  /*********/
+  /* SOUND */
+  /*********/
+  amp = new p5.Amplitude()
+  // Enable normalize to reduce the dynamic range
+  amp.toggleNormalize(true);
+  // Set the smooth value to reduce any artifacts from normalization
+  amp.smooth(5);
+  volCoeff = width;
 
   // enumerate sliders
   controlsSchema.forEach((sch, idx) => {
-    controls[sch.name] = createSlider(...sch.init);
-    controls[sch.name].position(10, height - CONTROL_SPACING * (idx + 1));
+    sch.$el = createSlider(...sch.init);
+    sch.$el.parent(PARENT_EL_ID);
+    sch.$el.position(
+      CONTROL_SPACING,
+      height - CONTROL_SPACING * idx - sch.$el.height * 2
+    );
+    sch.$el.hide()
   });
 }
 
-function playSound() {
-  if (!sound.isPlaying()) {
-    sound.loop();
-  } else {
-    sound.stop();
-  }
-}
+function randomBoolean() { return random() < 0.5; }
 
-function drawCircles() {
-  vol = amp.getLevel() * volCoeff
-  interRingDistance = controls['sparseness'].value()
-  ringCulture = controls['culture'].value() / 10
-  ringThickness = controls['thickness'].value()
+function drawVisualizer() {
+  vol = amp.getLevel() * width;
+  interRingDistance = controlsSchema.find(c => c.name === 'sparseness')?.$el?.value() ?? 0
+  ringCulture = controlsSchema.find(c => c.name === 'culture')?.$el?.value() / 10 ?? 0
+  ringThickness = controlsSchema.find(c => c.name === 'thickness')?.$el?.value() ?? 0
 
+  /***********/
+  /* CULTURE */
+  /***********/
   if (frameCount % 7 === 0) {
     rand1 = (random(-1 * ringCulture, ringCulture));
     rand2 = (random(-1 * ringCulture, ringCulture));
   }
 
   for (let i = 0; i < vol; i += interRingDistance) {
-    rectMode(CENTER);
-    translate(radians(rand1 + rand2));
+    const widthMod = randomBoolean ? rand1 : -rand1;
+    const heightMod = randomBoolean ? rand2 : -rand2;
 
     noFill();
     strokeWeight(DEFAULT_STROKE + ringThickness);
     rect(
-      width / 2 + rand1,
-      height / 2 + rand2,
+      width / 2,
+      height / 2,
       i + interRingDistance / 2,
       i + interRingDistance / 2,
     )
 
-    translate(-radians(rand1 + rand2));
     strokeWeight(DEFAULT_STROKE);
   }
 }
 
-function drawLabels() {
+function drawControls() {
   fill(DEFAULT_FILL);
-  textSize(16);
-  Object.entries(controls).forEach(([name, slider], idx) => {
-    text(name, slider.x * 2 + slider.width, height - CONTROL_SPACING * (idx + 1) + 15);
-  })
+  // draw icon
+  textSize(TEXT_SIZE * 1.4);
+  text(
+    isControlPanelOpen ? CONTROLS_CLOSE_LABEL : CONTROLS_LABEL,
+    TEXT_SIZE * 1.4,
+    TEXT_SIZE * 1.4
+  );
+  textSize(TEXT_SIZE);
+
+  if (isControlPanelOpen) {
+    // controlsSchema.length * CONTROL_SPACING, 0);
+    // Draw the labels for the controls
+    controlsSchema.forEach((control, idx) => {
+      highlightedText(
+        control.name,
+        control.$el.x * 2 + control.$el.width,
+        height - CONTROL_SPACING * idx - CONTROL_SPACING,
+        { backgroundColor: '#fff' }
+      );
+    });
+  }
+}
+
+function highlightedText(string, x, y, { backgroundColor } = {}) {
+  const w = textWidth(string);
+  if (backgroundColor) {
+    rectMode(CORNER);
+    fill(backgroundColor);
+    rect(
+      x - TEXT_LABEL_PADDING,
+      y - TEXT_SIZE,
+      w + 2 * TEXT_LABEL_PADDING,
+      TEXT_SIZE + TEXT_LABEL_PADDING
+    );
+    fill(DEFAULT_FILL);
+    rectMode(CENTER);
+  }
+  text(string, x, y);
+}
+
+/*********/
+/* EVENTS */
+/*********/
+function mouseClicked() {
+  const messageWidth = textWidth(CONTROLS_LABEL);
+  const messageTop = CONTROLS_POS_Y - textAscent();
+  const messageBottom = CONTROLS_POS_Y + textDescent();
+  const isSettingsButtonClick = mouseX > CONTROLS_POS_X && mouseX < CONTROLS_POS_X + messageWidth &&
+    mouseY > messageTop && mouseY < messageBottom;
+
+  if (isSettingsButtonClick) {
+    // enumerate sliders
+    if (isControlPanelOpen) {
+      controlsSchema.forEach((control) => control.$el.hide());
+    } else {
+      controlsSchema.forEach((control) => control.$el.show());
+    }
+    isControlPanelOpen = !isControlPanelOpen;
+    return false;
+  } else {
+    if (!sound.isPlaying()) {
+      sound.loop();
+    } else {
+      sound.stop();
+    }
+  }
 }
 
 function draw() {
   background(220);
-  drawCircles();
-  drawLabels();
+  drawVisualizer();
+  drawControls();
 }
