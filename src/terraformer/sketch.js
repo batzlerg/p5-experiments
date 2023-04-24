@@ -1,4 +1,5 @@
 const CANVAS_SIZE = 500;
+const SENSITIVITY = 0.01;
 
 let angleX = 0;
 let angleY = 0;
@@ -20,12 +21,15 @@ function setup() {
 function draw() {
   background(200);
 
+  // Canvas movement
   rotateX(angleX);
   rotateY(angleY);
 
-  // Draw the sphere with lighting
+  // Lighting
   ambientLight(70);
   pointLight(50, 50, 50, -lightPosX, lightPosY, 200);
+
+  // Sphere
   specularMaterial(255, 255, 255);
   shininess(15);
   sphere(sphereRadius);
@@ -45,8 +49,8 @@ function mouseDragged() {
     cursor('grabbing');
     let deltaX = mouseX - prevMouseX;
     let deltaY = mouseY - prevMouseY;
-    angleY += deltaX * 0.01;
-    angleX -= deltaY * 0.01;
+    angleY += deltaX * SENSITIVITY;
+    angleX -= deltaY * SENSITIVITY;
     prevMouseX = mouseX;
     prevMouseY = mouseY;
   }
