@@ -1,37 +1,18 @@
-const app = new DrawingApp({
-  width: 800,
-  height: 600,
-  mouseClicked() {
-    let shape;
-    if (random() > 0.5) {
-      shape = new Circle(
-        mouseX,
-        mouseY,
-        50,
-        color(random(255), random(255), random(255))
-      );
-    } else {
-      shape = new Rectangle(
-        mouseX,
-        mouseY,
-        100,
-        50,
-        color(random(255), random(255), random(255))
-      );
-    }
+const DEFAULT_STROKE = 1.0;
 
-    this.shapes.push(shape);
-  }
-});
-
+let app;
 function setup() {
-  app.setup();
+  app = new DrawingApp({
+    width: 800,
+    height: 600,
+    border: {
+      color: color(200, 200, 200),
+      width: 15,
+      position: SQUARE,
+    },
+    shapes: [new Drawable({ color: color(0, 0, 0), persist: true })],
+  });
 }
-
 function draw() {
   app.draw();
-}
-
-function mouseClicked() {
-  app.mouseClicked();
 }

@@ -10,7 +10,7 @@ class Circle {
    * @param {number} options.radius - The radius of the circle.
    * @param {color} options.color - The fill color of the circle.
    */
-  constructor(options) {
+  constructor(options = {}) {
     this.x = options.x || 0;
     this.y = options.y || 0;
     this.radius = options.radius || 50;
