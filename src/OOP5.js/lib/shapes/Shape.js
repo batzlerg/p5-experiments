@@ -20,7 +20,7 @@ class Shape {
    * Draws the shape.
    */
   draw() {
-    this.handleMouseEvents();
+    // this.handleMouseEvents();
   }
 
   /**

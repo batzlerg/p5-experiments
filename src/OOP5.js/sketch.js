@@ -3,9 +3,8 @@ const DEFAULT_STROKE = 1.0;
 let app;
 function setup() {
   createCanvas(800, 600);
-  background(255); // Move background call to setup function
+  // background(255); // Move background call to setup function
   const rectangleSize = 50
-  // random(10, 50)
   app = new DrawingApp({
     width: 800,
     height: 600,
@@ -16,24 +15,7 @@ function setup() {
     },
     shapes: [
       new Animatable({
-        animationSpeed: 30,
-        /**
-         * Animates a shape vertically using a sine wave.
-         * @param {Object} shape - The shape to be animated.
-         */
-        animationFunction: function (shape) {
-          // Calculate the current angle based on the animation speed and direction
-          let angle = (millis() / (1000 / this.animationSpeed)) * this.animationDirection + this.animationStart;
-
-          // Calculate the new y position based on the angle
-          let distance = 1;
-          let newY = shape.y + sin(angle) * distance / 2;
-
-          // Update the shape's position
-          shape.y = newY;
-        },
-
-        // animationFunction: () => { },
+        animationFunction: sineWave,
         shape: new Rectangle({
           x: 200,
           y: 200,
@@ -55,15 +37,44 @@ function setup() {
       const circle = new Circle({
         x: mouseX,
         y: mouseY,
-        width: random(150, 500),
+        width: random(100, 300),
         color: color(random(255), random(255), random(255)),
         stroke: 5,
         onMouseOver: () => {
           console.log('mouse over')
         }
       });
-      this.shapes.push(circle);
-    },
+
+      const circleSpeed = random(0, 1.5)
+      const animatableCircle = new Animatable({
+        animationStart: random() * TWO_PI, // random start angle
+        /**
+         * Animates a shape vertically with a slight sway back and forth.
+         * @param {Object} shape - The shape to be animated.
+         */
+        animationFunction: function (shape) {
+          // Calculate the new x and y positions based on the angle
+          let swayX = sin(millis() / 100) // add a small sway left and right
+          let newY = shape.y - (circleSpeed * 3);
+          let newX = shape.x + swayX;
+
+          // Update the shape's position
+          shape.x = newX;
+          shape.y = newY;
+
+          // Check if the circle is offscreen and remove it if it is
+          if (shape.y + shape.radius < 0) {
+            app.shapes.splice(app.shapes.indexOf(animatableCircle), 1);
+          }
+        },
+
+
+        shape: circle
+      });
+
+      app.shapes.push(animatableCircle);
+    }
+
   });
 }
 function draw() {

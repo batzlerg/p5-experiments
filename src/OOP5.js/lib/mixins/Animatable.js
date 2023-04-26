@@ -7,16 +7,10 @@ class Animatable {
    * @param {Object} options - The options for the shape.
    * @param {Shape} options.shape - The shape to animate.
    * @param {function} options.animationFunction - The function to execute during the animation.
-   * @param {number} options.animationSpeed - The speed of the animation.
-   * @param {number} options.animationDirection - The direction of the animation (1 for clockwise, -1 for counterclockwise).
-   * @param {number} options.animationStart - The starting position of the animation.
    */
   constructor(options = {}) {
     this.shape = options.shape;
     this.animationFunction = options.animationFunction || function (shape) { };
-    this.animationSpeed = options.animationSpeed || 1;
-    this.animationDirection = options.animationDirection || 1;
-    this.animationStart = options.animationStart || 0;
   }
 
   /**
