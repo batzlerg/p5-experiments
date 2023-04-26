@@ -15,9 +15,6 @@ class Drawable {
     this.points = [];
   }
 
-  /**
-   * Draw the shape on the canvas.
-   */
   draw() {
     push(); // Save current style settings
     noFill();
@@ -30,14 +27,16 @@ class Drawable {
     }
     endShape();
 
-    if (this.persist && mouseIsPressed) {
-      this.points.push(createVector(mouseX, mouseY));
-    }
-
-    if (!mouseIsPressed) {
+    if (mouseButton === RIGHT) {
       this.points = [];
     }
 
     pop(); // Restore previous style settings
+  }
+
+  onMouseDragged() {
+    if (this.persist && mouseButton === LEFT) {
+      this.points.push(createVector(mouseX, mouseY));
+    }
   }
 }
