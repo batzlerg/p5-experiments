@@ -2,7 +2,7 @@ const textSizes = {
   MEDIUM: 32,
   LARGE: 64,
 }
-const MAX_WRONG_GUESSES = 5; // todo: based on level
+const MAX_WRONG_GUESSES = 6;
 let gameState = {
   guessedLetters: [],
   wrongGuesses: [],
@@ -58,10 +58,10 @@ function drawGallows() {
   push();
   stroke(0);
   strokeWeight(8);
-  line(100, 100, 100, height - 50);
-  line(100, 100, 300, 100);
+  line(125, 100, 125, height - 50);
+  line(125, 100, 300, 100);
   line(300, 100, 300, 150);
-  line(150, height - 50, 250, height - 50); // add a horizontal line
+  line(50, height - 50, 300, height - 50); // add a horizontal line
   pop();
 }
 
@@ -127,16 +127,21 @@ function drawGuessedLetters() {
 }
 
 function keyPressed() {
-  if (gameState.gameOver) return;
+  if (gameState.gameOver || keyIsPressed && (keyIsPressed.CONTROL || keyIsPressed.ALT || keyIsPressed.SHIFT)) {
+    return;
+  }
+  
   if (keyCode >= 65 && keyCode <= 90) { // A-Z
-    const letter = String.fromCharCode(keyCode);
-    const alreadyGuessed = gameState.guessedLetters.includes(letter);
+    const pressedLetter = String.fromCharCode(keyCode);
+    const alreadyGuessed = gameState.guessedLetters.includes(pressedLetter);
     if (alreadyGuessed) {
-      return false;
-      // todo: glow letter?
+      // // TODO: Glow the letter
+      // const alreadyGuessedLetter = select(`.${pressedLetter}`);
+      // alreadyGuessedLetter.class("glow");
+      // return false;
     } else {
-      updateGuessedLetter(letter)
-      updateWordState(letter);
+      updateGuessedLetter(pressedLetter)
+      updateWordState(pressedLetter);
     }
   }
 }
