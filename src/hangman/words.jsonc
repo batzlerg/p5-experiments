@@ -1,0 +1,18 @@
+[
+  // animals
+  "lion","tiger","elephant","giraffe","rhinoceros","kangaroo","flamingo","peacock",
+  // countries
+  "brazil","japan","egypt","australia","canada","france","mexico","spain",
+  // foods
+  "pizza","sushi","hamburger","spaghetti","lasagna","burrito","sandwich",
+  // hobbies
+  "knitting","reading","painting","swimming","running","photography","cooking","gardening",
+  // colors
+  "blue","green","red","yellow","purple","orange","black","white",
+  // sports
+  "football","basketball","baseball","tennis","soccer","hockey","golf","swimming",
+  // professions
+  "doctor","lawyer","teacher","engineer","scientist","actor","singer","writer",
+  // fruits
+  "apple","banana","orange","grape","strawberry","watermelon","kiwi","mango"
+]
